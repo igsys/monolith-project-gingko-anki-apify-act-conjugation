@@ -50,6 +50,9 @@ Apify.main(async () => {
 
     // Store the output
     const output = {
+        name: 'apify/igsys/conjugation',
+        crawledAt: new Date(),
+        input,
         conjugation: uniq(results)
     };
     await Apify.setValue('OUTPUT', output)
