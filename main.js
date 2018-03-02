@@ -1,9 +1,13 @@
 const Apify = require('apify');
 const typeCheck = require('type-check').typeCheck;
+const puppeteer = require('puppeteer');
+const cheerio = require('cheerio');
+const uniq = require('lodash').uniq
 
 // Definition of the input
 const INPUT_TYPE = `{
-    message: Maybe String,
+    source: String,
+    query: String
 }`;
 
 Apify.main(async () => {
@@ -18,12 +22,35 @@ Apify.main(async () => {
         throw new Error('Received invalid input');
     }
 
+    // Environment variables
+    const launchPuppeteer = process.env.NODE_ENV === 'development' ? puppeteer.launch : Apify.launchPuppeteer;
+
+    // Navigate to page
+    const uri = `http://conjugator.reverso.net/conjugation-${input.source}-verb-${input.query}.html`
+    const browser = await launchPuppeteer();
+    const page = await browser.newPage();
+    await page.goto(uri);
+
+    let html = await page.content();
+    const $ = cheerio.load(html);
+
+    // Get verb conjugation list
+    let results = [];
+
+    $('.verbtxt').each((i, elem) => {
+        const txt = $(elem).text().trim();
+        const splitted = txt.split('/');
+        results = results.concat(splitted);
+    });
+
     // Here's the place for your magic...
-    console.log(`Input message: ${input.message}`);
+    console.log(`Input query: ${input.query}`);
+    console.log('Result: ', uniq(results));
 
     // Store the output
     const output = {
-        message: `${input.message} Hello my friend!`
+        // message: `Define ${input.query}!`
+        results: uniq(results)
     };
     await Apify.setValue('OUTPUT', output)
 });
