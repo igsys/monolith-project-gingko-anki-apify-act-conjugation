@@ -7,7 +7,8 @@ const uniq = require('lodash').uniq
 // Definition of the input
 const INPUT_TYPE = `{
     source: String,
-    query: String
+    query: String,
+    dictionary: Maybe String,
 }`;
 
 Apify.main(async () => {
