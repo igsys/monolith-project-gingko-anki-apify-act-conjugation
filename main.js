@@ -49,8 +49,7 @@ Apify.main(async () => {
 
     // Store the output
     const output = {
-        // message: `Define ${input.query}!`
-        results: uniq(results)
+        conjugation: uniq(results)
     };
     await Apify.setValue('OUTPUT', output)
 });
